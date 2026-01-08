@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <title>Encurtador de URL</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f4f4;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            background: white;
+            padding: 24px;
+            border-radius: 8px;
+            width: 400px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 12px;
+            font-size: 14px;
+        }
+
+        button {
+            padding: 10px 16px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .result {
+            margin-top: 16px;
+        }
+
+        a {
+            color: #007bff;
+            text-decoration: none;
+            word-break: break-all;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>🔗 Encurtador de URL</h2>
+
+    <input 
+        type="text" 
+        id="originalUrl" 
+        placeholder="Cole a URL longa aqui..."
+    />
+
+    <button onclick="shortenUrl()">Encurtar</button>
+
+    <div class="result" id="result"></div>
+</div>
+
+<script>
+    async function shortenUrl() {
+        const input = document.getElementById("originalUrl");
+        const resultDiv = document.getElementById("result");
+        const originalUrl = input.value.trim();
+
+        if (!originalUrl) {
+            alert("Informe uma URL válida");
+            return;
+        }
+
+        resultDiv.innerHTML = "⏳ Encurtando...";
+
+        try {
+            const response = await fetch("http://localhost:5001/api/shorten", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ originalUrl })
+            });
+
+            if (!response.ok) {
+                throw new Error("Erro ao encurtar URL");
+            }
+
+            const data = await response.json();
+
+            const shortLink = `http://localhost:5001/api/${data.shortUrl}`;
+
+            resultDiv.innerHTML = `
+                <p>URL encurtada:</p>
+                <a href="${shortLink}" target="_blank">
+                    ${shortLink}
+                </a>
+            `;
+        } catch (error) {
+            console.error(error);
+            resultDiv.innerHTML = "❌ Erro ao encurtar URL";
+        }
+    }
+</script>
+
+</body>
+</html>
